@@ -1,3 +1,36 @@
-pool: MyAgentPool
-steps:
-- bash: echo hello world
+pool:
+  name: MyAgentPool
+
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - bash: echo hello world
+
+- stage: DeployDev
+  displayName: 'Deploy to dev environment'
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deployment Job'
+    environment: 'dev'
+    pool:
+      vmImage: 'ubuntu-20.04'
+    variables:
+      - group: 'Release Pipeline'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: 
+              artifact: drop
+          - task: AzureWebApp@1
+            displayName: 'Azure App Service Deploy: website'
+            inputs:
+              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              appName: '$(WebAppName)'
+              package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
