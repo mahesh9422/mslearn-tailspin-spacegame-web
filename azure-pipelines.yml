@@ -1,8 +1,12 @@
 pool:
+-task: DotNetCoreCLI@2
+  inputs:
+    azureSubscription: 'Azure for Students(47fa45f5-507b-44d4-ad87-2ba60be6c8f1)'
+    command: 'build'
   name: MyAgentPool
 
 stages:
-- stage: Build
+-stage: Build
   displayName: 'Build Stage'
   jobs:
   - job: BuildJob
